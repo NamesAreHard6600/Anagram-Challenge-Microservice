@@ -4,6 +4,7 @@ import random
 EASY = 1
 MEDIUM = 2
 HARD = 3
+DIFFICULTIES = {"easy": EASY, "medium": MEDIUM, "hard": HARD}
 FILES = [None, "easy_words.txt"]
 
 
@@ -21,28 +22,31 @@ class AnagramChallenge:
 
     def main_loop(self):
         while True:
-            self.reset()
             message = self.socket.recv_pyobj()
-            success = self.parse_request(message)
-            if not success:
-                self.socket.send_pyobj(["ERROR: Error Parsing Request"])
-                continue
+            if message[0] == "request":
+                self.reset()
+                success = self.parse_request(message)
 
-            self.generate_challenge()
-            print(f"Generated Challenge - Challenge: {self.challenge} - Possible Answer: {self.actual_answer}")
+                if not success:
+                    self.socket.send_pyobj(["error", "Error Parsing Request"])
+                    continue
 
-            self.socket.send_pyobj([self.challenge])
+                self.generate_challenge()
+                print(f"Generated Challenge - Challenge: {self.challenge} - Possible Answer: {self.actual_answer}")
 
-            response = self.socket.recv_pyobj()
-            while True:
-                success = self.parse_response(response)
-                if success:
-                    break
-                self.socket.send_pyobj(["ERROR: Error Parsing Response"])
+                self.socket.send_pyobj(["problem", self.challenge])
+            elif message[0] == "response" and self.actual_answer:
+                success = self.parse_response(message)
+                if not success:
+                    self.socket.send_pyobj(["error", "Error Parsing Response"])
+                    continue
 
-            success = self.check_answer()
+                success = self.check_answer()
 
-            self.socket.send_pyobj([1 if success else 0, self.actual_answer])
+                self.socket.send_pyobj(["answer", 1 if success else 0, self.actual_answer])
+                self.reset()
+            else:
+                self.socket.send_pyobj(["error", "Error Parsing Message"])
 
     def reset(self):
         self.difficulty = EASY
@@ -54,8 +58,8 @@ class AnagramChallenge:
         if request[0] != "request":
             print("First index not 'request'")
             return False
-        if request[1]:
-            self.difficulty = request[1]
+        if request[1] and request[1].lower() in DIFFICULTIES:
+            self.difficulty = DIFFICULTIES[request[1].lower()]
         return True
 
     def generate_challenge(self):
