@@ -70,7 +70,7 @@ class AnagramChallenge:
 
         self.challenge = list(self.actual_answer)
         random.shuffle(self.challenge)
-        self.challenge = str(self.challenge)
+        self.challenge = "".join(self.challenge)
 
     def parse_response(self, response):
         if response[0] != "response":
