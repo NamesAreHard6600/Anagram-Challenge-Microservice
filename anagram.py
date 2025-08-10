@@ -5,7 +5,7 @@ EASY = 1
 MEDIUM = 2
 HARD = 3
 DIFFICULTIES = {"easy": EASY, "medium": MEDIUM, "hard": HARD}
-FILES = [None, "easy_words.txt"]
+FILES = [None, "easy_words.txt", "medium_words.txt", "hard_words.txt"]
 
 
 class AnagramChallenge:
