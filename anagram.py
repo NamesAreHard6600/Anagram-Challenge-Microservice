@@ -77,7 +77,7 @@ class AnagramChallenge:
             print("First index not 'response'")
             return False
         if response[1]:
-            self.user_answer = response[1]
+            self.user_answer = response[1].strip()
             return True
         print("Missing answer")
         return False
