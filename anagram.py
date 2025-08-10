@@ -35,14 +35,14 @@ class AnagramChallenge:
                 print(f"Generated Challenge - Challenge: {self.challenge} - Possible Answer: {self.actual_answer}")
 
                 self.socket.send_pyobj(["problem", self.challenge])
-            elif message[0] == "response" and self.actual_answer:
+            elif message[0] == "answer" and self.actual_answer:
                 success = self.parse_response(message)
                 if not success:
                     self.socket.send_pyobj(["error", "Error Parsing Response"])
                     continue
 
                 success = self.check_answer()
-
+                print(f"Accepted Answer - Challenge: {self.challenge} - Answer Given: {self.user_answer} - Success: {success}")
                 self.socket.send_pyobj(["answer", 1 if success else 0, self.actual_answer])
                 self.reset()
             else:
@@ -73,7 +73,7 @@ class AnagramChallenge:
         self.challenge = "".join(self.challenge)
 
     def parse_response(self, response):
-        if response[0] != "response":
+        if response[0] != "answer":
             print("First index not 'response'")
             return False
         if response[1]:
